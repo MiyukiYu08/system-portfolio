@@ -5,10 +5,9 @@ import Link from 'next/link';
 import gsap from 'gsap';
 
 export default function Design() {
-  // State for Accordion and Lightbox (Mirroring the /systems architecture)
+  // State for Accordion and Lightbox
   const [expandedProject, setExpandedProject] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [scrambledText, setScrambledText] = useState('');
 
   useEffect(() => {
     // Clean entrance animation
@@ -35,20 +34,6 @@ export default function Design() {
       ease: "sine.inOut",
       stagger: 0.5
     });
-
-    // Encrypted terminal text effect for the locked 3D section
-    const chars = '0123456789ABCDEF!?*#@&[]{}';
-    const scrambleInterval = setInterval(() => {
-      let str = '';
-      for(let i = 0; i < 250; i++) {
-        str += chars[Math.floor(Math.random() * chars.length)];
-        if (i % 8 === 0) str += ' ';
-        if (i % 32 === 0) str += '\n';
-      }
-      setScrambledText(str);
-    }, 75);
-
-    return () => clearInterval(scrambleInterval);
   }, []);
 
   // ==============================================================================================
@@ -87,11 +72,31 @@ export default function Design() {
     }
   ];
 
+  // ==============================================================================================
+  // 3D CAD PROJECT DATA ARRAY
+  // ==============================================================================================
+  const cadProjects = [
+    {
+      id: 'project-sgm',
+      title: 'Project SGM: Spherical Geneva Mechanism',
+      tags: ['SolidWorks', 'Kinematics', 'Motion Study'],
+      status: 'SIMULATED',
+      color: 'red',
+      shortDesc: 'Parametric modeling and kinematic motion study of a Spherical Geneva Mechanism for intermittent rotational translation.',
+      fullDesc: 'This assembly bridges complex spatial geometry with precise mechanical timing. The workflow involved strict 2D parametric sketching, 3D feature propagation via circular patterns, and a comprehensive motion analysis to validate the intermittent drive tolerances without collision.',
+      images: [
+        { src: '/sgm-sketch.jpg', label: '01 // PARAMETRIC_SKETCH' },
+        { src: '/sgm-part.jpg', label: '02 // FEATURE_MODELING' },
+        { src: '/sgm-assembly.jpg', label: '03 // MOTION_DYNAMICS' }
+      ]
+    }
+  ];
+
   return (
     <main className="min-h-screen w-full bg-[#0a0a0e] text-slate-300 p-6 md:px-12 md:py-12 font-sans relative overflow-x-hidden">
       
       {/* ============================================================================================== */}
-      {/* 0. LIGHTBOX MODAL (z-[100]) - Ported from /systems                                              */}
+      {/* 0. LIGHTBOX MODAL (z-[100]) */}
       {/* ============================================================================================== */}
       {selectedImage && (
         <div 
@@ -139,8 +144,8 @@ export default function Design() {
       <div className="fixed top-10 left-10 font-mono text-sm text-red-600 opacity-20 fading-code pointer-events-none z-0 tracking-wider space-y-1 hidden md:block">
         <div>$ INIT decrypt_assets.sh</div>
         <div>&gt; VECTOR_DATA :: <span className="text-teal-500">DECRYPTED</span></div>
-        <div>&gt; MESH_GEOMETRY :: ENCRYPTED</div>
-        <div>STATUS: PARTIAL_ACCESS</div>
+        <div>&gt; MESH_GEOMETRY :: <span className="text-red-500">DECRYPTED</span></div>
+        <div>STATUS: FULL_ACCESS</div>
       </div>
 
       <div className="fixed top-[-10%] left-[-10%] w-[50rem] h-[50rem] bg-red-900/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
@@ -252,57 +257,89 @@ export default function Design() {
             })}
 
             <h3 className="text-sm font-mono text-slate-400 uppercase tracking-widest mt-12 mb-6 flex items-center gap-3 stagger-in border-b border-slate-800/60 pb-3">
-              <span className="w-2 h-4 bg-slate-600/50"></span>
-              [02] // 3D_WORKSPACE_ENCRYPTED
+              <span className="w-2 h-4 bg-red-600/80 animate-pulse"></span>
+              [02] // 3D_WORKSPACE_DECRYPTED
             </h3>
 
-            {/* EXISTING 3D ENCRYPTED SECTION (LOCKED NODE) */}
-            <div className="group relative bg-[#0a0a0e] border border-red-900/50 rounded-sm p-1 transition-all duration-500 shadow-2xl shadow-red-900/10 overflow-hidden stagger-in">
-                <div className="bg-red-950/40 border-b border-red-900/50 p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <svg className="w-5 h-5 text-red-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        <h2 className="text-sm font-mono text-red-400 uppercase tracking-widest">Archive Encrypted</h2>
+            {/* DYNAMIC 3D PROJECT CARDS STACK */}
+            {cadProjects.map((project) => {
+              const isExpanded = expandedProject === project.id;
+              
+              return (
+                <div 
+                  key={project.id}
+                  onClick={() => setExpandedProject(isExpanded ? null : project.id)}
+                  className={`group relative bg-[#12121a]/80 backdrop-blur-sm border rounded-sm p-6 md:p-8 transition-all duration-500 shadow-xl overflow-hidden cursor-pointer stagger-in 
+                    ${isExpanded ? `border-${project.color}-500/50 bg-[#12121a]/95` : 'border-slate-800/80 hover:border-slate-600'}`}
+                >
+                    <div className={`absolute top-0 left-0 w-full h-[2px] transition-colors duration-500 ${isExpanded ? `bg-${project.color}-500` : `bg-${project.color}-500/0 group-hover:bg-${project.color}-500/50`}`}></div>
+                    
+                    <div className="flex justify-between items-start">
+                       <div>
+                          <h2 className={`text-xl md:text-2xl font-medium text-slate-100 mb-3 transition-colors ${isExpanded ? `text-${project.color}-400` : `group-hover:text-${project.color}-300`}`}>
+                            {project.title}
+                          </h2>
+                          <div className="flex flex-wrap gap-2 font-mono text-[10px] uppercase tracking-wider mb-4">
+                             <span className={`text-${project.color}-400 bg-${project.color}-400/10 px-2 py-1 border border-${project.color}-400/20 rounded-sm`}>{project.tags[0]}</span>
+                             <span className="text-slate-400 bg-slate-800/50 px-2 py-1 border border-slate-700/50 rounded-sm">{project.tags[1]}</span>
+                             <span className="text-slate-400 bg-slate-800/50 px-2 py-1 border border-slate-700/50 rounded-sm hidden md:inline-block">{project.tags[2]}</span>
+                          </div>
+                       </div>
+                       <div className="flex items-center gap-2 flex-shrink-0 mt-1">
+                         <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                         <span className="text-[10px] font-mono text-slate-500 hidden sm:block">{project.status}</span>
+                       </div>
                     </div>
-                    <span className="text-[10px] font-mono text-red-500/70">REF: WIP_CAD_01</span>
-                </div>
 
-                <div className="p-8 md:p-12 flex flex-col items-center justify-center text-center bg-gradient-to-b from-[#12121a]/80 to-[#0a0a0e]">
-                    <div className="mb-8 relative">
-                        <div className="absolute inset-0 bg-red-500/20 blur-2xl rounded-full"></div>
-                        <svg className="w-20 h-20 text-red-500/80 relative z-10" fill="none" stroke="currentColor" strokeWidth="1" viewBox="0 0 24 24">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                        </svg>
-                    </div>
-
-                    <h3 className="text-2xl font-light text-slate-200 mb-4">Awaiting Payload Clearance</h3>
-                    <p className="text-sm text-slate-500 max-w-md mx-auto mb-8 leading-relaxed">
-                        Compiling 3D spatial models and technical CAD documentation. SolidWorks geometry and mechanical assemblies are currently locked behind security protocols.
+                    <p className={`text-sm text-slate-400 leading-relaxed max-w-2xl transition-all duration-300 ${isExpanded ? 'opacity-0 h-0 hidden' : 'opacity-100 h-auto'}`}>
+                      {project.shortDesc}
                     </p>
 
-                    <div className="w-full max-w-md mb-2">
-                        <div className="flex justify-between text-[10px] font-mono text-slate-500 uppercase mb-2">
-                            <span>Sector Decryption</span>
-                            <span className="text-red-400">WIP</span>
+                    {/* EXPANDABLE 3D CONTENT */}
+                    <div className={`grid transition-all duration-500 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100 mt-4' : 'grid-rows-[0fr] opacity-0 mt-0'}`}>
+                      <div className="overflow-hidden">
+                        
+                        <p className="text-sm text-slate-300 leading-relaxed mb-6">
+                          {project.fullDesc}
+                        </p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                           {/* 3D Screenshot Grid - ZOOMABLE */}
+                           {project.images.map((img, idx) => (
+                             <div 
+                                key={idx} 
+                                className="w-full bg-[#07070a] border border-slate-800/80 rounded-sm overflow-hidden flex flex-col relative cursor-zoom-in group/image transition-all duration-300 hover:border-red-500/50" 
+                                onClick={(e) => { 
+                                  e.stopPropagation(); 
+                                  setSelectedImage(img.src); 
+                                }}
+                             >
+                                 <div className="aspect-video relative overflow-hidden">
+                                    <img src={img.src} alt={img.label} className="w-full h-full object-cover opacity-80 group-hover/image:opacity-100 group-hover/image:scale-[1.02] transition-all duration-500 filter grayscale-[15%] group-hover/image:grayscale-0" />
+                                    <div className="absolute inset-0 border border-slate-700/30 pointer-events-none transition-opacity group-hover/image:opacity-0"></div>
+                                 </div>
+                                 <div className="p-2 border-t border-slate-800/80 bg-[#0a0a0e]">
+                                    <p className="font-mono text-[9px] text-slate-500 group-hover/image:text-red-400 transition-colors uppercase tracking-widest text-center">{img.label}</p>
+                                 </div>
+                             </div>
+                           ))}
                         </div>
-                        <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
-                            <div className="h-full bg-red-600/80 w-[5%] relative animate-pulse"></div>
-                        </div>
+
+                      </div>
                     </div>
 
-                    <div className="w-full max-w-md mt-10 bg-[#07070a] border border-red-900/30 rounded-sm p-4 text-left overflow-hidden h-40 relative">
-                        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-[#07070a] z-10 pointer-events-none"></div>
-                        <p className="text-[10px] font-mono text-red-500/30 absolute top-2 right-4 uppercase z-20">Asset Dump</p>
-                        <pre className="text-[10px] font-mono text-slate-600/60 break-all leading-relaxed whitespace-pre-wrap opacity-70">
-                            {scrambledText}
-                        </pre>
+                    <div className="mt-4 flex items-center gap-2 text-xs font-mono text-slate-500 group-hover:text-slate-300 transition-colors">
+                      <span className="transform transition-transform">{isExpanded ? '[-]' : '[+]'}</span> 
+                      {isExpanded ? 'Collapse Assembly' : 'Inspect Assembly'}
                     </div>
                 </div>
-            </div>
+              );
+            })}
 
           </div>
         </section>
 
-        {/* RIGHT COLUMN: STICKY HUD (Aligned with the /systems layout) */}
+        {/* RIGHT COLUMN: STICKY HUD */}
         <section className="w-full lg:w-1/3 hidden lg:flex flex-col gap-8 sticky top-32 h-[calc(100vh-8rem)] z-50 pointer-events-none mt-32">
             
             {/* Visual Directories Tree */}
@@ -331,11 +368,11 @@ export default function Design() {
                     <span className="text-slate-600">[Layout]</span>
                  </div>
 
+                 {/* New Decrypted CAD File entry */}
                  <div className="flex items-center gap-3 relative group cursor-default pt-4">
-                    <div className="w-[11px] h-[1px] bg-slate-800 group-hover:bg-slate-500 transition-colors"></div>
-                    <span className="text-slate-600 group-hover:text-slate-400 transition-colors flex items-center gap-2">
-                       mesh_data.sldprt <span className="text-[8px] bg-red-900/40 text-red-400 px-1 border border-red-900/50">LOCKED</span>
-                    </span>
+                    <div className="w-[11px] h-[1px] bg-slate-800 group-hover:bg-red-500 transition-colors"></div>
+                    <span className="text-red-600 group-hover:text-red-400 transition-colors">sgm_study.sldasm</span>
+                    <span className="text-slate-600">[Kinematics]</span>
                  </div>
 
               </div>
@@ -369,10 +406,12 @@ export default function Design() {
                  <li className="space-y-1">
                     <div className="flex justify-between text-[10px] font-mono text-slate-400 uppercase">
                        <span>Parametric 3D (CAD)</span>
-                       <span className="text-red-500">Encrypting</span>
+                       {/* Updated from Encrypting to Nominal */}
+                       <span className="text-red-500">Nominal</span>
                     </div>
                     <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
-                       <div className="h-full bg-red-600 w-[45%]"></div>
+                       {/* Updated width from 45% to 85% */}
+                       <div className="h-full bg-red-500 w-[85%]"></div>
                     </div>
                  </li>
               </ul>
